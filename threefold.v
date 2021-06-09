@@ -2,10 +2,10 @@ module main
 
 import time
 import os
+import json
+import cli
 
 import dariotarantini.vgram
-
-const bot = vgram.new_bot("1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM")
 
 struct Session {
     pub mut:
@@ -16,10 +16,12 @@ struct Session {
         userid string
         take_action bool
         message vgram.Message
+        payment_token string
+        bot vgram.Bot
 }
 
 fn handle_page(mut session Session)?{
-    bot.send_chat_action({chat_id: session.userid, action: "typing"})
+    session.bot.send_chat_action({chat_id: session.userid, action: "typing"})
 
     // all top level pages
     mut fspages := map[string]bool{}
@@ -62,10 +64,8 @@ fn handle_page(mut session Session)?{
         }
     }
     path := os.join_path("templates", session.current_page.replace(".", "/"), "home.md")
-    println(session.current_page)
-    println(path)
     content := os.read_file(path)?
-    bot.send_message({chat_id: session.userid,text: content, parse_mode: "MarkdownV2"})
+    session.bot.send_message({chat_id: session.userid,text: content, parse_mode: "MarkdownV2"})
 }
 
 fn handle_back_cmd(mut session &Session)?{
@@ -77,13 +77,11 @@ fn handle_back_cmd(mut session &Session)?{
         session.take_action = true
         handle_page(mut session)?
     }else{
-        bot.delete_message({chat_id: session.userid, message_id: session.message.message_id})
+        session.bot.delete_message({chat_id: session.userid, message_id: session.message.message_id})
     }
 }
 
 fn handle_forward_cmd(mut session &Session)?{
-    println("forward")
-    println(session.forward_page_history)
     if session.forward_page_history.len > 0 {
         current_page := session.forward_page_history.pop()
         session.back_page_history << current_page
@@ -92,11 +90,48 @@ fn handle_forward_cmd(mut session &Session)?{
         session.take_action = true
         handle_page(mut session)?
     }else{
-        bot.delete_message({chat_id: session.userid, message_id: session.message.message_id})
+        session.bot.delete_message({chat_id: session.userid, message_id: session.message.message_id})
     }
 }
 
-fn main(){
+fn handle_shop_cmd(mut session &Session)?{
+    session.bot.send_invoice({
+        chat_id: session.userid,
+        title: "Fantastic cloud Box",
+        description: "foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar",
+        provider_token: session.payment_token,
+        need_name: true,
+        need_phone_number: true,
+        need_email: true,
+        need_shipping_address: true,
+        send_phone_number_to_provider: true,
+        send_email_to_provider: true,
+        is_flexible: true,
+        photo_url: "https://core.telegram.org/file/811140095/1/lfTvDVqVS8M.43169/1a191248e6cf027581",
+        photo_width: 200,
+        photo_height: 200,
+        payload: json.encode({'a': 1, 'b': 2}),
+        currency: "USD",
+        prices: json.encode([vgram.LabeledPrice{label: "total", amount: 10000}]),
+    })
+}
+
+
+
+fn run(cmd cli.Command)?{
+    flags := cmd.flags.get_all_found()
+	token := flags.get_string('token') or {
+        println("Usage ./threefold --token <token> --paymenttoken <payment token>")
+        return
+    }
+
+    payment_token := flags.get_string('paymenttoken') or {
+        println("Usage ./threefold --token <token> --paymenttoken <payment token>")
+        return
+    }
+
+    bot := vgram.new_bot(token)
+
     mut updates := []vgram.Update{}
     mut last_offset := 0
 
@@ -119,7 +154,11 @@ fn main(){
                 userid := update.message.from.id.str()
 
                 if !(userid in sessions){
-                    sessions[userid] = &Session{userid: userid}
+                    sessions[userid] = &Session{
+                        userid: userid,
+                        payment_token: payment_token,
+                        bot: bot
+                    }
                     sessions[userid].back_page_history << ''
                 }
                 
@@ -131,6 +170,8 @@ fn main(){
 
                 if userinput == '/forward'{
                     handle_forward_cmd(mut usersession)?
+                }else if userinput == '/shop'{
+                    handle_shop_cmd(mut usersession)?
                 }else if userinput == '/back'{
                     handle_back_cmd(mut usersession)?
                 }else{
@@ -139,4 +180,41 @@ fn main(){
             }
         }
     }
+}
+
+fn main(){
+    tokenflag := cli.Flag{
+		name: 'token'
+		abbrev: 't'
+		description: "Telegram bot API Token"
+		flag: cli.FlagType.string
+    }   
+
+    paymenttokenflag := cli.Flag{
+        name: 'paymenttoken'
+        abbrev: 'p'
+        description: 'Payment Token for the chose payment provider'
+        flag: cli.FlagType.string
+    }
+
+    run_exec := fn (cmd cli.Command) ? {
+		run(cmd) ?
+	}
+
+    mut run_cmd := cli.Command{
+		name: 'run'
+		execute: run_exec
+	}
+
+    run_cmd.add_flag(tokenflag)
+    run_cmd.add_flag(paymenttokenflag)
+
+    mut main_cmd := cli.Command{
+		name: 'runner'
+		commands: [run_cmd]
+		description: 'Threefold Telegram bot runner'
+	}
+
+	main_cmd.setup()
+	main_cmd.parse(os.args)
 }

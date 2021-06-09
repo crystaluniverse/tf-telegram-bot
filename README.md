@@ -7,16 +7,48 @@ Install vgram
 - Using vpm: `v install dariotarantini.vgram`  
 - Using vpkg: `vpkg get vgram`
 
-## Getting started  
-1. Search for the “@botfather” telegram bot and start it  
-2. Click on or type /newbot to create a new bot and follow his instructions  
-3. Copy the token and change `const bot = vgram.new_bot("{token}")`
-` in [threefold.v](./threefold.v)
+## Quick Getting started
+1. compile and run `v run threefold.v`
+2. using your telegram, visit `@HamdyTestBot` and interact with as shown
+![](docs/1.png)
+![](docs/2.png)
+![](docs/payment8.png)
 
+
+## Getting started
+
+### Create your own bot with payment support
+
+1. Search for the `@botfather` telegram bot and start it  
+2. Click on or type `/newbot` to create a new bot and follow his instructions  
+3. On finish, `@botfather` will give you a token. Copy that token, it's your bot token will be used in communication with the bot
+4. now while talking to `@botfather` type `/mybots` then select your bot
+![](docs/payment1.png)
+5. choose payments
+
+    ![](docs/payment2.png)
+6. Choose your payment provider
+
+     ![](docs/payment3.png)
+7. I used `Stripe` here but you can use another one
+8. conenct to `Stripe testing` for testing or `stripe live` if you need a real account
+    
+    ![](docs/payment4.png)
+9. Authorize
+    ![](docs/payment5.png)
+
+10. Now you gonna be redirected to website. Click on `Skip this form` if you are in testing mode
+    ![](docs/payment6.png)
+11. Now you are redirected back to the (payment provider) bot `stripe` in this case with a success message
+
+    ![](docs/payment7.png)
 
 ## Run
+- compile `v threefold.v`
+- Give execution permissions: `chmod u+x threefold`
+- Run (use your tokens) `./threefold --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj`
+- The tokens above belong to `@HamdyTestBot` in case you want to test with
 
-- `v run threefold.v`
 
 ## How to set up pages
 
@@ -41,8 +73,3 @@ Install vgram
     ```
 
 - we have `/back` and `/forward` to navigate between pages same as in browser
-
-## Example:
-
-![](docs/1.png)
-![](docs/2.png)
