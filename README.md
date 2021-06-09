@@ -23,7 +23,8 @@ Install vgram
 2. Click on or type `/newbot` to create a new bot and follow his instructions  
 3. On finish, `@botfather` will give you a token. Copy that token, it's your bot token will be used in communication with the bot
 4. now while talking to `@botfather` type `/mybots` then select your bot
-![](docs/payment1.png)
+
+    ![](docs/payment1.png)
 5. choose payments
 
     ![](docs/payment2.png)
@@ -35,14 +36,19 @@ Install vgram
     
     ![](docs/payment4.png)
 9. Authorize
+
     ![](docs/payment5.png)
 
 10. Now you gonna be redirected to website. Click on `Skip this form` if you are in testing mode
+
     ![](docs/payment6.png)
 11. Now you are redirected back to the (payment provider) bot `stripe` in this case with a success message
 
     ![](docs/payment7.png)
+12. Now you can see your payment token in `@botfather`
 
+    ![](docs/payment9.png)
+    
 ## Run
 - compile `v threefold.v`
 - Give execution permissions: `chmod u+x threefold`
