@@ -169,13 +169,13 @@ fn run(cmd cli.Command)?{
                 usersession.message = update.message
 
                 if userinput == '/forward'{
-                    handle_forward_cmd(mut usersession)?
+                    go handle_forward_cmd(mut usersession)
                 }else if userinput == '/shop'{
-                    handle_shop_cmd(mut usersession)?
+                    go handle_shop_cmd(mut usersession)
                 }else if userinput == '/back'{
-                    handle_back_cmd(mut usersession)?
+                    go handle_back_cmd(mut usersession)
                 }else{
-                    handle_page(mut usersession) or {panic(err)}
+                    go handle_page(mut usersession)
                 }
             }
         }
