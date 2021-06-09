@@ -8,7 +8,8 @@ Install vgram
 - Using vpkg: `vpkg get vgram`
 
 ## Quick Getting started
-1. compile and run `v run threefold.v`
+1. run bot server `v  run threefold.v run --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj`
+
 2. using your telegram, visit `@HamdyTestBot` and interact with as shown
 ![](docs/1.png)
 ![](docs/2.png)
@@ -48,7 +49,7 @@ Install vgram
 12. Now you can see your payment token in `@botfather`
 
     ![](docs/payment9.png)
-    
+
 ## Run
 - compile `v threefold.v`
 - Give execution permissions: `chmod u+x threefold`
