@@ -13,7 +13,7 @@ Install vgram & crystallib
 ![](docs/1.png)
 ![](docs/2.png)
 ![](docs/payment8.png)
-
+    use car number `4242 4242 4242 4242` for testing
 
 ## Getting started
 

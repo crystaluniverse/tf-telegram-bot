@@ -23,6 +23,18 @@ struct Session {
         payment_token string
         bot vgram.Bot
         content_repo string
+        payments []vgram.PreCheckoutQuery
+}
+
+fn handle_purchase(mut session Session)?{
+    if session.payments.len > 0{
+        precheckout_id := session.payments[session.payments.len -1].id
+        session.bot.answer_pre_checkout_query({
+            pre_checkout_query_id: precheckout_id,
+            ok: true,
+            error_message: ''
+        })
+    }
 }
 
 fn handle_page(mut session Session)?{
@@ -100,18 +112,18 @@ fn handle_forward_cmd(mut session &Session)?{
 }
 
 fn handle_shop_cmd(mut session &Session)?{
-    session.bot.send_invoice({
+    resp := session.bot.send_invoice({
         chat_id: session.userid,
         title: "Fantastic cloud Box",
-        description: "foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar foo bar",
+        description: "Fantastic cloud shop\n you are going to like that",
         provider_token: session.payment_token,
         need_name: true,
         need_phone_number: true,
         need_email: true,
-        need_shipping_address: true,
+        need_shipping_address: false,
         send_phone_number_to_provider: true,
         send_email_to_provider: true,
-        is_flexible: true,
+        is_flexible: false,
         photo_url: "https://core.telegram.org/file/811140095/1/lfTvDVqVS8M.43169/1a191248e6cf027581",
         photo_width: 200,
         photo_height: 200,
@@ -172,7 +184,7 @@ fn run(cmd cli.Command)?{
     mut last_offset := 0
 
     botstarttime := time.utc().unix
-
+    println(botstarttime)
     mut sessions := map[string]&Session{}
 
     for {
@@ -184,9 +196,11 @@ fn run(cmd cli.Command)?{
                 
                 // skip old messages prior to the time of running the bot
                 if update.message.date < botstarttime{
-                    continue
+                    if update.message.date != 0{
+                        continue
+                    }
                 }
-
+                
                 userid := update.message.from.id.str()
 
                 if !(userid in sessions){
@@ -204,6 +218,13 @@ fn run(cmd cli.Command)?{
 
                 usersession.current_input = userinput
                 usersession.message = update.message
+
+                // a message reply to a purchase
+                
+                if update.pre_checkout_query.id != ''{
+                    usersession.payments << update.pre_checkout_query
+                    go handle_purchase(mut usersession)
+                }
 
                 if userinput == '/forward'{
                     go handle_forward_cmd(mut usersession)
