@@ -6,6 +6,10 @@ import json
 import cli
 
 import dariotarantini.vgram
+import despiegk.crystallib.gittools
+import despiegk.crystallib.myconfig
+
+const cfg = myconfig.get() or {panic(err)}
 
 struct Session {
     pub mut:
@@ -18,6 +22,7 @@ struct Session {
         message vgram.Message
         payment_token string
         bot vgram.Bot
+        content_repo string
 }
 
 fn handle_page(mut session Session)?{
@@ -26,7 +31,7 @@ fn handle_page(mut session Session)?{
     // all top level pages
     mut fspages := map[string]bool{}
     
-    for item in os.ls('templates')?{
+    for item in os.ls(session.content_repo)?{
         p := os.join_path('templates', item)
         if os.is_file(p){
             fspages[item.trim_right('.md')] = true
@@ -56,14 +61,14 @@ fn handle_page(mut session Session)?{
             }
         }else{
             current_page := session.current_page + '.' + userinput
-            p := os.join_path("templates", current_page.replace(".", "/"), "home.md")
+            p := os.join_path(session.content_repo, current_page.replace(".", "/"), "home.md")
             if os.exists(p){
                 session.current_page = current_page
                 session.back_page_history << current_page
             }        
         }
     }
-    path := os.join_path("templates", session.current_page.replace(".", "/"), "home.md")
+    path := os.join_path(session.content_repo, session.current_page.replace(".", "/"), "home.md")
     content := os.read_file(path)?
     session.bot.send_message({chat_id: session.userid,text: content, parse_mode: "MarkdownV2"})
 }
@@ -116,7 +121,31 @@ fn handle_shop_cmd(mut session &Session)?{
     })
 }
 
+fn update_content(force_pull bool)?&gittools.GitRepo{
 
+    mut pull := force_pull
+    
+    
+    codepath := cfg.paths.code
+
+    mut gt := gittools.new(codepath) or {
+		return error_with_code('ERROR: cannot load gittools:$err', 2)
+	}
+	
+    url := 'https://github.com/threefoldfoundation/tf_telegram'
+    mut repo := gt.repo_get(name: 'tf_telegram') or {
+        pull = false
+        gt.repo_get_from_url(url: url pull: true, reset: false, branch: 'main') or {
+			return error(' - ERROR: could not download site $url, do you have rights?\n$err\n$url')
+	    }
+	}
+
+    if pull{
+        repo.pull() or { return error('ERROR: cannot pull repo $repo.path :$err') }
+    }
+
+    return repo
+}
 
 fn run(cmd cli.Command)?{
     flags := cmd.flags.get_all_found()
@@ -129,6 +158,13 @@ fn run(cmd cli.Command)?{
         println("Usage ./threefold --token <token> --paymenttoken <payment token>")
         return
     }
+
+    mut pull := true
+    pull = flags.get_bool('update') or {
+        false        
+    }
+
+    repo := update_content(pull)?
 
     bot := vgram.new_bot(token)
 
@@ -157,7 +193,8 @@ fn run(cmd cli.Command)?{
                     sessions[userid] = &Session{
                         userid: userid,
                         payment_token: payment_token,
-                        bot: bot
+                        bot: bot,
+                        content_repo: repo.path
                     }
                     sessions[userid].back_page_history << ''
                 }
@@ -197,6 +234,13 @@ fn main(){
         flag: cli.FlagType.string
     }
 
+    updateflag := cli.Flag{
+        name: 'update'
+        abbrev: 'u'
+        description: 'Force pull tf_telegram repo (better to use  production)'
+        flag: cli.FlagType.bool
+    }
+
     run_exec := fn (cmd cli.Command) ? {
 		run(cmd) ?
 	}
@@ -208,6 +252,7 @@ fn main(){
 
     run_cmd.add_flag(tokenflag)
     run_cmd.add_flag(paymenttokenflag)
+    run_cmd.add_flag(updateflag)
 
     mut main_cmd := cli.Command{
 		name: 'runner'

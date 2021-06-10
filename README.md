@@ -2,13 +2,12 @@
 
 ## Prerequisites
 
-Install vgram
+Install vgram & crystallib
 
-- Using vpm: `v install dariotarantini.vgram`  
-- Using vpkg: `vpkg get vgram`
+- Using vpm: `v install dariotarantini.vgram && v install despiegk.crystallib`  
 
 ## Quick Getting started
-1. run bot server `v  run threefold.v run --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj`
+1. run bot server `v  run threefold.v run --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj --update true`
 
 2. using your telegram, visit `@HamdyTestBot` and interact with as shown
 ![](docs/1.png)
@@ -53,10 +52,23 @@ Install vgram
 ## Run
 - compile `v threefold.v`
 - Give execution permissions: `chmod u+x threefold`
-- Run (use your tokens) `./threefold --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj`
+- Run (use your tokens) `./threefold --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj --update true`
 - The tokens above belong to `@HamdyTestBot` in case you want to test with
+- By default, the bot gets its content from https://github.com/threefoldfoundation/tf_telegram
 
+- use flag `--update true` better use in production to foce pulling the content repo. Don't use during development if you are changing content in the `tf_repo` locally to avoid merge conflicts
 
+    ```
+    v  run threefold.v run --help
+    Usage: runner run [flags]
+
+    Flags:
+    -t  --token         Telegram bot API Token
+    -p  --paymenttoken  Payment Token for the chose payment provider
+    -u  --update        Force pull tf_telegram repo (better to use  production)
+    -h  --help          Prints help information.
+
+    ```
 ## How to set up pages
 
 - use the dir `templates` to put markdown for communicating with users
@@ -68,7 +80,7 @@ Install vgram
 - under each toplevel directrory sub dirs there are named with the choices u ask user to choose 
 
     ```
-    templates
+    tf_telegram (repo)
         |_home.md  (home page) or /hi
         |_ farming
             |_ farming.md  /farming
