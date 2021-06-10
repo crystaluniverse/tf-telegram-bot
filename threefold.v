@@ -112,7 +112,7 @@ fn handle_forward_cmd(mut session &Session)?{
 }
 
 fn handle_shop_cmd(mut session &Session)?{
-    resp := session.bot.send_invoice({
+    session.bot.send_invoice({
         chat_id: session.userid,
         title: "Fantastic cloud Box",
         description: "Fantastic cloud shop\n you are going to like that",
@@ -184,7 +184,6 @@ fn run(cmd cli.Command)?{
     mut last_offset := 0
 
     botstarttime := time.utc().unix
-    println(botstarttime)
     mut sessions := map[string]&Session{}
 
     for {
@@ -220,13 +219,10 @@ fn run(cmd cli.Command)?{
                 usersession.message = update.message
 
                 // a message reply to a purchase
-                
                 if update.pre_checkout_query.id != ''{
                     usersession.payments << update.pre_checkout_query
                     go handle_purchase(mut usersession)
-                }
-
-                if userinput == '/forward'{
+                }else if userinput == '/forward'{
                     go handle_forward_cmd(mut usersession)
                 }else if userinput == '/shop'{
                     go handle_shop_cmd(mut usersession)

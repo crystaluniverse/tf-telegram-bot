@@ -71,11 +71,10 @@ Install vgram & crystallib
     ```
 ## How to set up pages
 
-- use the dir `templates` to put markdown for communicating with users
-- `templates` dir and any sub directory must contain `home.md` page
-- `templates/home.md` represents the greeting message or your home page this is sent to user when user first says `hi` or `/home`
+- home dir and any sub directory must contain `home.md` page
+- `home.md` represents the greeting message or your home page this is sent to user when user first says `hi` or `/home`
 
-- All sub directories under `templates` are top level commands `/{dir_name}` for instance if we have `templates/farming` & `templates/cloud` these willh be accessible through `/farming` & `/cloud` respectively provided that each sub directory contains `home.md`
+- All top level sub directories in this repo are top level commands `/{dir_name}` for instance if we have `farming` & `cloud` these willh be accessible through `/farming` & `/cloud` commands in telegram bot respectively provided that each sub directory contains `home.md`
 
 - under each toplevel directrory sub dirs there are named with the choices u ask user to choose 
 
