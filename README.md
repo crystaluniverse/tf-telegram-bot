@@ -54,7 +54,7 @@ Install vgram & crystallib
 - Give execution permissions: `chmod u+x threefold`
 - Run (use your tokens) `./threefold --token 1836992937:AAEEYXyeQ0klNWJIze1JaAhDtQ1MqeqD9ZM --paymenttoken 284685063:TEST:NzkwMDVhOTUzMjlj --update true`
 - The tokens above belong to `@HamdyTestBot` in case you want to test with
-- By default, the bot gets its content from https://github.com/threefoldfoundation/tf_telegram
+- By default, the bot gets its content from https://github.com/threefoldfoundation/tf_telegram which is goint to be cloned under `~/codewww/github/threefoldfoundation/tf_telegram/`
 
 - use flag `--update true` better use in production to foce pulling the content repo. Don't use during development if you are changing content in the `tf_repo` locally to avoid merge conflicts
 
@@ -71,6 +71,9 @@ Install vgram & crystallib
     ```
 ## How to set up pages
 
+ we use this repo : https://github.com/threefoldfoundation/tf_telegram
+ it will be cloned into `~/codewww/github/threefoldfoundation/tf_telegram/
+ `
 - home dir and any sub directory must contain `home.md` page
 - `home.md` represents the greeting message or your home page this is sent to user when user first says `hi` or `/home`
 
